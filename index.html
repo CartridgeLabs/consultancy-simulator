@@ -35,12 +35,12 @@
   </div>
 </div>
 
-<!-- SCREEN 2: PRE-GAME INTERVIEW -->
+<!-- SCREEN 2: PRE-GAME INTERVIEW (renamed from Survey) -->
 <div id="screen-pre-survey" class="screen">
   <div class="screen-inner centered-column">
     <div class="survey-header">
       <div class="survey-icon">📊</div>
-      <h2 class="survey-title">PRE-GAME SURVEY</h2>
+      <h2 class="survey-title">PRE-GAME INTERVIEW</h2>
       <div class="survey-sub">A few questions before you start</div>
     </div>
     <div id="pre-survey-form" class="survey-form"></div>
@@ -83,9 +83,7 @@
     </div>
   </div>
 
-  <div class="domain-badge-wrapper">
-    <div class="domain-badge" id="domain-badge">Consumer Protection</div>
-  </div>
+  <!-- NO domain badge — correction #3 -->
 
   <div class="case-question-box">
     <div class="case-q-label">THE BOSS ASKS:</div>
@@ -99,6 +97,7 @@
         <div class="ai-badge">AI ASSISTANT</div>
         <div class="ai-name">ConsultBot</div>
       </div>
+      <!-- Source link button — Groups B and D only -->
       <button class="btn-source" id="btn-source" style="display:none;" onclick="app.handleSourceClick()">
         📖 CHECK SOURCE
       </button>
@@ -108,6 +107,14 @@
 
   <div class="options-grid" id="options-grid"></div>
 
+  <!-- HANDBOOK ACCESS BUTTON — always visible on game screen (correction #2) -->
+  <div class="handbook-access-bar">
+    <button class="btn-handbook-open" id="btn-open-handbook" onclick="app.openHandbookFree()">
+      📚 Open Legal Handbook
+    </button>
+  </div>
+
+  <!-- Manager avatar -->
   <div class="manager-wrap" id="manager-wrap">
     <div class="manager-avatar" id="manager-avatar">
       <div class="manager-sprite">👔</div>
@@ -145,12 +152,12 @@
   </div>
 </div>
 
-<!-- SCREEN 7: POST-GAME SURVEY -->
+<!-- SCREEN 7: POST-GAME INTERVIEW (renamed from Survey) -->
 <div id="screen-post-survey" class="screen">
   <div class="screen-inner centered-column">
     <div class="survey-header">
       <div class="survey-icon">🎯</div>
-      <h2 class="survey-title">POST-GAME SURVEY</h2>
+      <h2 class="survey-title">POST-GAME INTERVIEW</h2>
       <div class="survey-sub">Almost done — just a few final questions</div>
     </div>
     <div id="post-survey-form" class="survey-form"></div>
@@ -158,7 +165,7 @@
   </div>
 </div>
 
-<!-- SCREEN 8: FINAL DEBRIEFING -->
+<!-- SCREEN 8: FINAL DEBRIEFING — no download button (correction #5) -->
 <div id="screen-debrief" class="screen">
   <div class="screen-inner centered-column">
     <div class="debrief-card">
@@ -187,7 +194,6 @@
         The AI's advice was sometimes <strong>incorrect</strong>. Researchers are interested in whether participants followed the AI regardless, and whether access to a source link changed behaviour.<br><br>
         Your anonymised data contributes to research on human-AI decision-making in professional contexts. Thank you for your time.
       </div>
-      <button class="btn-pixel btn-primary" id="btn-download-data">⬇ Download My Data (JSON)</button>
     </div>
   </div>
 </div>

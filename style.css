@@ -404,20 +404,27 @@ html, body {
   letter-spacing: 1px;
 }
 
-/* ── DOMAIN BADGE ── */
-.domain-badge-wrapper {
-  padding: 10px 12px 0;
+/* ── HANDBOOK ACCESS BAR (always visible on game screen) ── */
+.handbook-access-bar {
+  padding: 6px 12px 0;
+  display: flex;
+  justify-content: flex-end;
 }
-.domain-badge {
-  display: inline-block;
+.btn-handbook-open {
+  background: transparent;
+  border: 1px solid var(--grey);
+  color: var(--grey-light);
   font-family: var(--font-pixel);
   font-size: 7px;
-  letter-spacing: 1px;
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: var(--radius);
-  background: var(--purple);
-  color: var(--bg);
-  box-shadow: 0 0 8px #b66dff40;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+.btn-handbook-open:hover {
+  border-color: var(--white);
+  color: var(--white);
 }
 
 /* ── CASE QUESTION BOX ── */

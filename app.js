@@ -339,8 +339,9 @@ function getUrlGroup() {
 }
 
 function heartsDisplay(n) {
-  const filled = Math.max(0, Math.min(n, 5));
-  return '❤️'.repeat(filled) + '🖤'.repeat(Math.max(0, 5 - filled));
+  if (n > 0) return '❤️'.repeat(n);
+  if (n === 0) return '0';
+  return '💔 ' + n; // negatives shown as 💔 -2 etc
 }
 
 function updateHUD() {
@@ -500,12 +501,6 @@ function getHandbookArticle(id) {
   return HANDBOOK.find(a => a.id === id) || null;
 }
 
-function getDomainForCase(caseData) {
-  if (caseData.isAttentionCheck) return null;
-  const article = getHandbookArticle(caseData.handbookRef);
-  return article ? article.category : null;
-}
-
 function getAIText(caseData) {
   const isAssertive = (state.group === 'A' || state.group === 'B');
   return isAssertive ? caseData.aiAssertive : caseData.aiHedged;
@@ -517,16 +512,6 @@ function renderCase() {
 
   state.sourceClicked = false;
   state.caseStartTime = Date.now();
-
-  // Domain badge
-  const domain = getDomainForCase(caseData);
-  const domainWrapper = document.querySelector('.domain-badge-wrapper');
-  if (domain && !caseData.isAttentionCheck) {
-    $('domain-badge').textContent = domain;
-    domainWrapper.style.display = 'block';
-  } else {
-    domainWrapper.style.display = 'none';
-  }
 
   // Question
   $('case-question').textContent = caseData.question;
@@ -880,6 +865,13 @@ function endGame() {
 // ═══════════════════════════════════════════════════════════════
 
 const app = {
+  openHandbookFree() {
+    // Free handbook access — timer keeps running, no source_checked flag
+    state.handbookReturnScreen = 'screen-game';
+    buildHandbook(null);
+    showScreen('screen-handbook');
+  },
+
   handleSourceClick() {
     if (state.sourceClicked) return; // idempotent
     state.sourceClicked = true;
@@ -905,32 +897,6 @@ function showDebrief() {
   $('final-hearts-display').textContent = heartsDisplay(state.hearts);
   $('final-correct').textContent      = `${state.correctCount}/15`;
   showScreen('screen-debrief');
-}
-
-function downloadData() {
-  const payload = {
-    session: {
-      timestamp:    new Date().toISOString(),
-      group:        state.group,
-      ai_style:     (state.group === 'A' || state.group === 'B') ? 'Assertive' : 'Hedged',
-      source_links: (state.group === 'B' || state.group === 'D'),
-    },
-    pre_survey:  state.preSurveyAnswers,
-    post_survey: state.postSurveyAnswers,
-    results: {
-      final_money:   state.money,
-      final_hearts:  state.hearts,
-      correct_count: state.correctCount,
-    },
-    case_log: state.log,
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `consultancy_sim_${state.group}_${Date.now()}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -999,9 +965,6 @@ function init() {
     }
     showDebrief();
   });
-
-  // --- Download data ---
-  $('btn-download-data').addEventListener('click', downloadData);
 
   // Expose app globally (for inline onclick)
   window.app = app;
