@@ -52,6 +52,9 @@ html, body {
   align-items: center;
   justify-content: center;
 }
+@media (max-width: 480px) {
+  html, body { overflow: auto; }
+}
 
 #phone-shell {
   position: relative;
@@ -64,8 +67,14 @@ html, body {
   flex-shrink: 0;
   box-shadow: 0 0 0 2px #222, 0 0 60px #000c;
 }
-@media (max-width: 390px) {
-  #phone-shell { width: 100vw; max-height: 100vh; }
+/* On real mobile devices: fill the full screen, no constraints */
+@media (max-width: 480px) {
+  #phone-shell {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    box-shadow: none;
+  }
 }
 
 /* SCANLINES */
@@ -233,6 +242,10 @@ html, body {
 
 /* GAME SCREEN */
 #screen-game { flex-direction: column; overflow: hidden; background: #1a1008; }
+@media (max-width: 480px) {
+  #screen-game { height: 100vh; }
+  .office-scene-wrap { height: 40vw; max-height: 200px; }
+}
 
 /* HUD BAR */
 .hud-bar {
@@ -1081,19 +1094,26 @@ window.sceneController = (function() {
   return { setState, updateTimerSvg };
 })();
 
-// ── GROUP AUTO-RANDOMIZATION ──
+// ── GROUP RANDOMIZATION ──
+// Each participant gets a random group (A/B/C/D) when they open the link.
+// sessionStorage keeps the same group if they accidentally refresh mid-session.
+// URL param ?group=X overrides for testing only.
 function getUrlGroup() {
+  // 1. URL override for testing
   const params = new URLSearchParams(window.location.search);
   const urlGroup = params.get('group');
-  if (urlGroup && ['A','B','C','D'].includes(urlGroup.toUpperCase())) return urlGroup.toUpperCase();
-  try { const sg = sessionStorage.getItem('sim_group'); if (sg && ['A','B','C','D'].includes(sg)) return sg; } catch(e) {}
-  let counts = { A: 0, B: 0, C: 0, D: 0 };
-  try { const stored = localStorage.getItem('sim_group_counts'); if (stored) counts = Object.assign(counts, JSON.parse(stored)); } catch(e) {}
-  const minVal = Math.min(counts.A, counts.B, counts.C, counts.D);
-  const pool = ['A','B','C','D'].filter(g => counts[g] === minVal);
-  const chosen = pool[Math.floor(Math.random() * pool.length)];
-  counts[chosen] = (counts[chosen] || 0) + 1;
-  try { localStorage.setItem('sim_group_counts', JSON.stringify(counts)); sessionStorage.setItem('sim_group', chosen); } catch(e) {}
+  if (urlGroup && ['A','B','C','D'].includes(urlGroup.toUpperCase())) {
+    return urlGroup.toUpperCase();
+  }
+  // 2. Keep same group if already assigned this session (handles accidental refresh)
+  try {
+    const sg = sessionStorage.getItem('sim_group');
+    if (sg && ['A','B','C','D'].includes(sg)) return sg;
+  } catch(e) {}
+  // 3. Pure random assignment
+  const groups = ['A','B','C','D'];
+  const chosen = groups[Math.floor(Math.random() * groups.length)];
+  try { sessionStorage.setItem('sim_group', chosen); } catch(e) {}
   return chosen;
 }
 
