@@ -582,16 +582,29 @@ html, body {
   </div>
 </div>
 
-<!-- SCREEN 2: JOB INTERVIEW -->
-<div id="screen-pre-survey" class="screen">
+<!-- SCREEN 2a: JOB INTERVIEW — PART 1 -->
+<div id="screen-pre-survey-1" class="screen">
   <div class="screen-inner centered-column">
     <div class="survey-header">
       <div class="survey-icon">📊</div>
       <h2 class="survey-title">JOB INTERVIEW</h2>
-      <div class="survey-sub">A few questions before you start</div>
+      <div class="survey-sub">Step 1 of 2 — Tell us about yourself</div>
     </div>
-    <div id="pre-survey-form" class="survey-form"></div>
-    <button class="btn-pixel btn-primary" id="btn-pre-submit">Start Game ▶</button>
+    <div id="pre-survey-form-1" class="survey-form"></div>
+    <button class="btn-pixel btn-primary" id="btn-pre-submit-1">Next ▶</button>
+  </div>
+</div>
+
+<!-- SCREEN 2b: JOB INTERVIEW — PART 2 -->
+<div id="screen-pre-survey-2" class="screen">
+  <div class="screen-inner centered-column">
+    <div class="survey-header">
+      <div class="survey-icon">📊</div>
+      <h2 class="survey-title">JOB INTERVIEW</h2>
+      <div class="survey-sub">Step 2 of 2 — Your professional profile</div>
+    </div>
+    <div id="pre-survey-form-2" class="survey-form"></div>
+    <button class="btn-pixel btn-primary" id="btn-pre-submit-2">Start Game ▶</button>
   </div>
 </div>
 
@@ -1031,14 +1044,18 @@ const MASTER_SCRIPT = [
   { id: 'C15', day: 5, isAttentionCheck: false, question: 'We forgot to report 10,000€ in cash sales. What is the minimum penalty for concealment?', options: { A: 'Double the unpaid tax.', B: 'A warning.', C: '50% of the unpaid tax.', D: '5% of the total revenue.' }, correctAnswer: 'C', aiAssertive: 'The penalty is just a small warning for first-time errors.', aiHedged: "I don't think the fine is very high, but I'm not sure.", handbookRef: '2026-10-03', aiDual: "I'm unsure about the penalty for concealment, please check [LINK]" },
 ];
 
-const PRE_SURVEY = [
+const PRE_SURVEY_1 = [
   { variable: 'var_age', question: 'How old are you?', type: 'dropdown', options: ['Under 18', '18-24', '25-34', '35-44', '45-54', '55 or older'] },
   { variable: 'var_gender', question: 'Which gender do you identify with?', type: 'dropdown', options: ['Male', 'Female', 'Non-binary', 'Prefer not to say'] },
   { variable: 'var_country', question: 'Where are you from?', type: 'dropdown', options: ['Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Belgium','Bolivia','Brazil','Canada','Chile','China','Colombia','Croatia','Czech Republic','Denmark','Ecuador','Egypt','Finland','France','Germany','Ghana','Greece','Hungary','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Japan','Jordan','Kenya','South Korea','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway','Pakistan','Peru','Philippines','Poland','Portugal','Romania','Russia','Saudi Arabia','Serbia','Singapore','South Africa','Spain','Sweden','Switzerland','Taiwan','Thailand','Turkey','Ukraine','United Kingdom','United States','Uruguay','Venezuela','Vietnam','Other'] },
-  { variable: 'var_language', question: "What's your native language?", type: 'dropdown', options: ['English','Mandarin Chinese','Hindi','Spanish','French','Arabic','Bengali','Russian','Portuguese','German','Other'] },
+];
+const PRE_SURVEY_2 = [
+  { variable: 'var_language', question: "What's your native language?", type: 'dropdown', options: ['English','Mandarin Chinese','Hindi','Spanish','French','Arabic','Bengali','Russian','Portuguese','German','Polish','Other'] },
   { variable: 'var_industry', question: 'What do you do for a living?', type: 'dropdown', options: ['Law & Legal Services','Business & Finance','Tech & IT','Marketing & Media','Education & Research','Healthcare & Sciences','Student','Other'] },
   { variable: 'var_first_time', question: 'Is this your first time playing?', type: 'dropdown', options: ['Yes', 'No'] },
 ];
+// Combined for validation use
+const PRE_SURVEY = [...PRE_SURVEY_1, ...PRE_SURVEY_2];
 
 const POST_SURVEY = [
   { variable: 'TI-WTD_1', question: 'When an important legal issue or problem arises, I would feel comfortable depending on the information provided by the AI assistant.', type: 'likert' },
@@ -1168,9 +1185,9 @@ function updateHUD() {
   $('hud-case').textContent = `${casesDone + 1}/${dayCases.length}`;
 }
 
-function buildPreSurvey() {
-  const container = $('pre-survey-form'); container.innerHTML = '';
-  PRE_SURVEY.forEach((q, i) => {
+function buildSurveyForm(questions, containerId) {
+  const container = $(containerId); container.innerHTML = '';
+  questions.forEach((q, i) => {
     const wrap = document.createElement('div'); wrap.className = 'survey-question';
     const label = document.createElement('label'); label.innerHTML = `<strong>${i + 1}. ${q.question}</strong>`;
     let input;
@@ -1182,6 +1199,10 @@ function buildPreSurvey() {
     }
     wrap.appendChild(label); wrap.appendChild(input); container.appendChild(wrap);
   });
+}
+function buildPreSurvey() {
+  buildSurveyForm(PRE_SURVEY_1, 'pre-survey-form-1');
+  buildSurveyForm(PRE_SURVEY_2, 'pre-survey-form-2');
 }
 
 function buildPostSurvey() {
@@ -1712,12 +1733,19 @@ function init() {
   // Hide all screens immediately via inline style
   document.querySelectorAll('.screen').forEach(s => { s.style.display = 'none'; });
   buildPreSurvey(); buildPostSurvey(); buildHandbook(null);
-  $('btn-agree').addEventListener('click', () => showScreen('screen-pre-survey'));
-  $('btn-pre-submit').addEventListener('click', () => {
+  $('btn-agree').addEventListener('click', () => showScreen('screen-pre-survey-1'));
+  $('btn-pre-submit-1').addEventListener('click', () => {
     let allFilled = true;
-    PRE_SURVEY.forEach(q => { const sel = $(`pre_${q.variable}`); if (!sel || !sel.value) allFilled = false; });
+    PRE_SURVEY_1.forEach(q => { const sel = $(`pre_${q.variable}`); if (!sel || !sel.value) allFilled = false; });
     if (!allFilled) { alert('Please answer all questions before continuing.'); return; }
-    PRE_SURVEY.forEach(q => { const sel = $(`pre_${q.variable}`); if (sel) state.preSurveyAnswers[q.variable] = sel.value; });
+    PRE_SURVEY_1.forEach(q => { const sel = $(`pre_${q.variable}`); if (sel) state.preSurveyAnswers[q.variable] = sel.value; });
+    showScreen('screen-pre-survey-2');
+  });
+  $('btn-pre-submit-2').addEventListener('click', () => {
+    let allFilled = true;
+    PRE_SURVEY_2.forEach(q => { const sel = $(`pre_${q.variable}`); if (!sel || !sel.value) allFilled = false; });
+    if (!allFilled) { alert('Please answer all questions before continuing.'); return; }
+    PRE_SURVEY_2.forEach(q => { const sel = $(`pre_${q.variable}`); if (sel) state.preSurveyAnswers[q.variable] = sel.value; });
     showScreen('screen-briefing');
   });
   $('btn-briefing-continue').addEventListener('click', () => showDayIntro(1));
